@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  http-server:
+    build:
+      context: ./http-server
+      dockerfile: Dockerfile
+    container_name: http-server
+    # ports:
+    #   - "8081:8081"
+    command: ["./server", "-host", "0.0.0.0", "-port", "8081"]
+    restart: unless-stopped
+    networks:
+      - internal-net
+  
+  proxy-server:
+    build:
+      context: ./http-proxy
+      dockerfile: Dockerfile
+    container_name: proxy-server
+    depends_on:
+      - http-server
+    networks:
+      - internal-net
+    ports:
+      - "6790:6790"
+    command: ["./proxy-server", "-host", "0.0.0.0", "-port", "6790"]
+
+  reverse-proxy-server:
+    build:
+      context: ./http-reverse-proxy
+      dockerfile: Dockerfile
+    container_name: reverse-proxy-server
+    depends_on:
+      - http-server
+      - proxy-server
+    networks:
+      - internal-net
+    ports:
+      - "7090:7090"
+    command: ["./reverse-proxy-server", "-host", "0.0.0.0", "-port", "7090", "-map", "/server1=http-server:8081"]
+
+networks:
+  internal-net:
+    driver: bridge
