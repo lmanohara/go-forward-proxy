@@ -1,11 +1,11 @@
 version: "3.9"
 
 services:
-  proxy-server:
+  forward-proxy-server:
     build:
-      context: ./http-proxy
+      context: ./http-forward-proxy
       dockerfile: Dockerfile
-    container_name: proxy-server
+    container_name: forward-proxy-server
     depends_on:
       - reverse-proxy-server
     networks:
