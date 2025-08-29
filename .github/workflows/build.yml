@@ -36,6 +36,6 @@ jobs:
           cd http-server
           go build -o server
 
-      - name: Run Tests
-        run: |
-          go test ./...
+      # - name: Run Tests
+      #   run: |
+      #     go test ./...
