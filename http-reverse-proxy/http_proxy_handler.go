@@ -22,7 +22,13 @@ func Handle(buff []byte, mapping proxyMappings) []byte {
 
 	contextPath := parsedUrl.Path
 
-	sourceAddress := mapping[contextPath]
+	sourceAddress, key := mapping[contextPath]
+
+	if !key {
+		var buf bytes.Buffer
+		writeResponseLine(&buf, 502)
+		return buf.Bytes()
+	}
 
 	fmt.Println("source address: ", sourceAddress)
 	// establish connection to the http server host and port
@@ -44,6 +50,28 @@ func Handle(buff []byte, mapping proxyMappings) []byte {
 	}
 
 	return buffer[:n]
+}
+
+func writeResponseLine(buff *bytes.Buffer, statusCode int) {
+	statusLine := fmt.Sprintf("HTTP/1.1 %d %s\r\n", statusCode, getStatusText(statusCode))
+	buff.WriteString(statusLine)
+}
+
+func getStatusText(statusCode int) string {
+	switch statusCode {
+	case 200:
+		return "OK"
+	case 403:
+		return "Forbidden"
+	case 404:
+		return "Not Found"
+	case 405:
+		return "Method Not Allowed"
+	case 502:
+		return "Bad Gateway"
+	default:
+		return ""
+	}
 }
 
 func forwardRequest(contextPath string, HttpRequest HttpRequest, conn net.Conn) {
