@@ -24,7 +24,7 @@ WORKDIR /root/
 # Copy the binary from builder
 COPY --from=builder /app/server .
 
-COPY index.html .
+COPY index_server_1.html index.html
 
 # Expose port
 EXPOSE 8081
